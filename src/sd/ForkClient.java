@@ -8,15 +8,22 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class ForkClient
+public class ForkClient implements  Runnable
 {
     // initialize socket and input output streams
     private Socket socket		 = null;
     private DataInputStream input = null;
     private DataOutputStream out	 = null;
+    private String address;
+    private int port;
+
+    ForkClient(String address, int port) {
+        this.address = address;
+        this.port = port;
+    }
 
     // constructor to put ip address and port
-    public ForkClient(String address, int port)
+    public void run ()
     {
         // establish a connection
         try

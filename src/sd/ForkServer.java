@@ -7,27 +7,21 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import sd.Fork;
 
-public class ForkServer
+public class ForkServer implements Runnable
 {
     //initialize socket and input stream
     private Socket		 socket = null;
     private ServerSocket server = null;
     private DataInputStream in	 = null;
-    private boolean working = false;
-    private boolean isWaitingConnection = false;
+    private int port;
 
-    public boolean isWorking() {
-        return working;
-    }
-
-    public boolean isWaitingConnection() {
-        return isWaitingConnection;
+    ForkServer (int port) {
+        this.port = port;
     }
 
     // constructor with port
-    public ForkServer(int port)
+    public void run()
     {
         // starts server and waits for a connection
         try
@@ -36,9 +30,6 @@ public class ForkServer
             System.out.println("PhilosopherServer started");
 
             System.out.println("Waiting for a client ...");
-            this.working = true;
-
-
 
             socket = server.accept();
             System.out.println("PhilosopherClient accepted");

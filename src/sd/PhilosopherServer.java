@@ -5,15 +5,21 @@ import java.net.*;
 import java.io.*;
 import sd.Philosopher;
 
-public class PhilosopherServer
+public class PhilosopherServer implements Runnable
 {
     //initialize socket and input stream
     private Socket		 socket = null;
     private ServerSocket server = null;
     private DataInputStream in	 = null;
+    private int port;
 
     // constructor with port
-    public PhilosopherServer(int port)
+    PhilosopherServer(int port) {
+        this.port = port;
+    }
+
+    // constructor with port
+    public void run ()
     {
         // starts server and waits for a connection
         try

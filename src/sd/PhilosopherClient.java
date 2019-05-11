@@ -4,15 +4,24 @@ package sd;
 import java.net.*;
 import java.io.*;
 
-public class PhilosopherClient
+public class PhilosopherClient implements Runnable
 {
     // initialize socket and input output streams
     private Socket socket		 = null;
     private DataInputStream input = null;
     private DataOutputStream out	 = null;
+    private String address;
+    private int port;
+
 
     // constructor to put ip address and port
-    public PhilosopherClient(String address, int port)
+
+    PhilosopherClient(String address, int port) {
+        this.address = address;
+        this.port = port;
+    }
+
+    public void run()
     {
         // establish a connection
         try
@@ -65,8 +74,4 @@ public class PhilosopherClient
         }
     }
 
-    public static void main(String args[])
-    {
-        PhilosopherClient client = new PhilosopherClient("127.0.0.1", 5000);
-    }
 }
