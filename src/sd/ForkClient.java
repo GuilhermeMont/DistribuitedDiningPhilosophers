@@ -13,6 +13,8 @@ public class ForkClient implements  Runnable
     private Socket socket		 = null;
     private OutputStream outputStream  = null;
     private ObjectOutputStream objectOutputStream 	 = null;
+    private InputStream inputStream	 = null;
+    private ObjectInputStream objectInputStream = null;
     private String address;
     private int port;
 
@@ -32,8 +34,16 @@ public class ForkClient implements  Runnable
 
             // get the output stream from the socket.
             outputStream = socket.getOutputStream();
+
             // create an object output stream from the output stream so we can send an object through it
             objectOutputStream = new ObjectOutputStream(outputStream);
+
+            // get the input stream from the connected socket
+            inputStream = socket.getInputStream();
+
+            // create a DataInputStream so we can read data from it.
+            objectInputStream = new ObjectInputStream(inputStream);
+
 
         } catch(IOException u)
         {
@@ -49,11 +59,17 @@ public class ForkClient implements  Runnable
             try
             {
                 objectOutputStream.writeObject(m);
+                m = (Message) objectInputStream.readObject();
+
             }
             catch(IOException i)
             {
                 System.out.println(i);
             }
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
 
         // close the connection

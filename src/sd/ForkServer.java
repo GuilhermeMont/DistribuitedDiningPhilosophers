@@ -13,12 +13,16 @@ public class ForkServer implements Runnable
     private ServerSocket server = null;
     private InputStream inputStream	 = null;
     private ObjectInputStream objectInputStream = null;
+    private OutputStream outputStream  = null;
+    private ObjectOutputStream objectOutputStream 	 = null;
     private int port;
+    private Fork fork = null;
 
     Message m = new Message(null);
 
     ForkServer (int port) {
         this.port = port;
+        this.fork = new Fork (port);
     }
 
     // constructor with port
@@ -41,16 +45,38 @@ public class ForkServer implements Runnable
             // create a DataInputStream so we can read data from it.
             objectInputStream = new ObjectInputStream(inputStream);
 
+            // get the output stream from the socket.
+            outputStream = socket.getOutputStream();
 
+            // create an object output stream from the output stream so we can send an object through it
+            objectOutputStream = new ObjectOutputStream(outputStream);
+
+            fork.setLeftFork(true);
+            fork.setRightFork(true);
 
             // reads message from client until "Over" is sent
-            while (!m.isTerminate())
-            {
+
+            do {
                 try
                 {
                     m = (Message) objectInputStream.readObject();
                     System.out.println(m.getMessage());
 
+                    if (fork.isLeftFork()) {
+                        m.setTerminate(true);
+                        System.out.println("Tem garfo sim man, toma um garfo esquerdo aí Xd");
+                        fork.setLeftFork(false);
+
+                    }
+
+                    if (fork.isRightFork()) {
+                        m.setTerminate(true);
+                        System.out.println("Tem garfo sim man, toma um garfo direito aí Xd");
+                        fork.setRightFork(false);
+                    }
+
+                    System.out.println("Mandando o garfo aí man , Xd");
+                    objectOutputStream.writeObject(m);
                 }
                 catch(IOException i)
                 {
@@ -58,7 +84,9 @@ public class ForkServer implements Runnable
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-            }
+
+            } while (!m.isTerminate());
+
             System.out.println("Closing connection");
 
             // close connection
