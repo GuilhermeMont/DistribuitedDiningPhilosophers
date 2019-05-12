@@ -64,9 +64,5 @@ public class PhilosopherServer implements Runnable
         }
     }
 
-    public static void main(String args[])
-    {
-        PhilosopherServer server = new PhilosopherServer(5000);
-    }
 }
 
