@@ -52,8 +52,9 @@ public class ForkClient implements  Runnable
 
         // string to read message from input
         Message m = new Message("Tem um garfin aí man ??");
+        m.isForkClient(true);
 
-        // keep reading until "Over" is input
+        // Continuar lendo até a mensagem indicar o fim da conexão
         while (!m.isTerminate())
         {
             try

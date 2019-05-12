@@ -9,6 +9,7 @@ public class Fork {
     private boolean being_used;
     private String philosopher_server;
 
+
     Fork(int id) {
         left_fork = false;
         right_fork = false;
@@ -16,6 +17,8 @@ public class Fork {
         being_used = false;
         philosopher_server = "localhost";
     }
+
+
 
     public static int getId() {
         return fork_id;

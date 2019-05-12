@@ -62,21 +62,53 @@ public class ForkServer implements Runnable
                     m = (Message) objectInputStream.readObject();
                     System.out.println(m.getMessage());
 
-                    if (fork.isLeftFork()) {
-                        m.setTerminate(true);
-                        System.out.println("Tem garfo sim man, toma um garfo esquerdo aí Xd");
-                        fork.setLeftFork(false);
+                    if (m.isForkClient() && !m.isReceiving()) {
 
+                        if (fork.isLeftFork() && !fork.isBeingUsed()) {
+                            m.setTerminate(true);
+                            System.out.println("Tem garfo sim man, toma um garfo esquerdo aí Xd");
+                            fork.setLeftFork(false);
+                            m.setLeftFork(true);
+                            m.setReceiving(true);
+
+                        }
+
+                        if (fork.isRightFork() && !fork.isBeingUsed()) {
+                            m.setTerminate(true);
+                            System.out.println("Tem garfo sim man, toma um garfo direito aí Xd");
+                            fork.setRightFork(false);
+                            m.setRightFork(true);
+                            m.setReceiving(true);
+                        }
+
+                        else {
+                            System.out.println("Não tem nenhum garfo por aqui");
+                            m.setReceiving(false);
+                        }
+
+                        System.out.println("Mandando o garfo aí man, Xd");
+                        objectOutputStream.writeObject(m);
                     }
 
-                    if (fork.isRightFork()) {
-                        m.setTerminate(true);
-                        System.out.println("Tem garfo sim man, toma um garfo direito aí Xd");
-                        fork.setRightFork(false);
+                    else if (m.isForkClient() && m.isReceiving()) {
+
+                        if (m.isRightFork()) {
+                            fork.setRightFork(true);
+                        }
+
+                        if (m.isLeftFork()) {
+                            fork.setLeftFork(true);
+                        }
                     }
 
-                    System.out.println("Mandando o garfo aí man , Xd");
-                    objectOutputStream.writeObject(m);
+                    else if (m.isPhilosopherClient()) {
+
+                        if(m.Ate()) {
+                            fork.setBeing_used(false);
+                        }
+                    }
+
+
                 }
                 catch(IOException i)
                 {
@@ -90,8 +122,8 @@ public class ForkServer implements Runnable
             System.out.println("Closing connection");
 
             // close connection
-            server.close();
             socket.close();
+            server.close();
         }
         catch(IOException i)
         {
