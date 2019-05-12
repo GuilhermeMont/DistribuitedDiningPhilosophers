@@ -2,9 +2,7 @@ package sd;
 
 // A Java program for a PhilosopherServer
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -13,8 +11,11 @@ public class ForkServer implements Runnable
     //initialize socket and input stream
     private Socket		 socket = null;
     private ServerSocket server = null;
-    private DataInputStream in	 = null;
+    private InputStream inputStream	 = null;
+    private ObjectInputStream objectInputStream = null;
     private int port;
+
+    Message m = new Message(null);
 
     ForkServer (int port) {
         this.port = port;
@@ -27,38 +28,42 @@ public class ForkServer implements Runnable
         try
         {
             server = new ServerSocket(port);
-            System.out.println("PhilosopherServer started");
+            System.out.println("Fork Server started");
 
             System.out.println("Waiting for a client ...");
 
             socket = server.accept();
-            System.out.println("PhilosopherClient accepted");
+            System.out.println("Fork client accepted");
 
-            // takes input from the client socket
-            in = new DataInputStream(
-                    new BufferedInputStream(socket.getInputStream()));
+            // get the input stream from the connected socket
+            inputStream = socket.getInputStream();
 
-            String line = "";
+            // create a DataInputStream so we can read data from it.
+            objectInputStream = new ObjectInputStream(inputStream);
+
+
 
             // reads message from client until "Over" is sent
-            while (!line.equals("Over"))
+            while (!m.isTerminate())
             {
                 try
                 {
-                    line = in.readUTF();
-                    System.out.println(line);
+                    m = (Message) objectInputStream.readObject();
+                    System.out.println(m.getMessage());
 
                 }
                 catch(IOException i)
                 {
                     System.out.println(i);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
             System.out.println("Closing connection");
 
             // close connection
+            server.close();
             socket.close();
-            in.close();
         }
         catch(IOException i)
         {

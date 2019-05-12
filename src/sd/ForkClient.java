@@ -2,8 +2,7 @@ package sd;
 
 // A Java program for a PhilosopherClient
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -12,8 +11,8 @@ public class ForkClient implements  Runnable
 {
     // initialize socket and input output streams
     private Socket socket		 = null;
-    private DataInputStream input = null;
-    private DataOutputStream out	 = null;
+    private OutputStream outputStream  = null;
+    private ObjectOutputStream objectOutputStream 	 = null;
     private String address;
     private int port;
 
@@ -31,31 +30,25 @@ public class ForkClient implements  Runnable
             socket = new Socket(address, port);
             System.out.println("Connected");
 
-            // takes input from terminal
-            input = new DataInputStream(System.in);
+            // get the output stream from the socket.
+            outputStream = socket.getOutputStream();
+            // create an object output stream from the output stream so we can send an object through it
+            objectOutputStream = new ObjectOutputStream(outputStream);
 
-            // sends output to the socket
-            out = new DataOutputStream(socket.getOutputStream());
-        }
-        catch(UnknownHostException u)
+        } catch(IOException u)
         {
             System.out.println(u);
         }
-        catch(IOException i)
-        {
-            System.out.println(i);
-        }
 
         // string to read message from input
-        String line = "";
+        Message m = new Message("Tem um garfin aí man ??");
 
         // keep reading until "Over" is input
-        while (!line.equals("Over"))
+        while (!m.isTerminate())
         {
             try
             {
-                line = input.readLine();
-                out.writeUTF(line);
+                objectOutputStream.writeObject(m);
             }
             catch(IOException i)
             {
@@ -66,8 +59,6 @@ public class ForkClient implements  Runnable
         // close the connection
         try
         {
-            input.close();
-            out.close();
             socket.close();
         }
         catch(IOException i)

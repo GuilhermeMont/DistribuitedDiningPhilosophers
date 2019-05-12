@@ -9,11 +9,11 @@ public class PhilosopherPeer {
 
     public static void main(String args[]){
 
-        //Criar Runnable do servidor de garfos
+        //Criar Runnable do servidor de Filosofos
         Runnable ps1 = new PhilosopherServer(5001);
 
 
-        //Criar Runnable do cliente de garfos
+        //Criar Runnable do cliente de Filosofos
         Runnable pc1 = new PhilosopherClient("127.0.0.1", 5001);
 
         //Criando uma thread pool
