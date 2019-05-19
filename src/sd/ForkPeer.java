@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 public class ForkPeer {
 
 
-    static final int MAX_T = 4;
+    static final int MAX_T = 6;
 
 
     public static void main(String args[]){
@@ -16,7 +16,7 @@ public class ForkPeer {
 
 
         //Criar Runnable do cliente de garfos
-        Runnable fc1 = new ForkClient("127.0.0.1", 5002);
+        Runnable fc1 = new ForkClient("192.168.1.145", 5002);
 
         //Criando uma thread pool
         ExecutorService pool = Executors.newFixedThreadPool(MAX_T);
@@ -29,13 +29,13 @@ public class ForkPeer {
             pool.shutdown(); // se der merda , fecha
         }
 
-        try {
-            pool.execute(fc1); //Executando
-        }
-        catch (Exception e) {
-            System.out.println("Falha ao criar o cliente local de Garfos");
-            pool.shutdown(); // se der merda, fecha
-        }
+//        try {
+//            pool.execute(fc1); //Executando
+//        }
+//        catch (Exception e) {
+//            System.out.println("Falha ao criar o cliente local de Garfos");
+//            pool.shutdown(); // se der merda, fecha
+//        }
 
 
         // Fechar a pool

@@ -55,24 +55,22 @@ public class ForkClient implements  Runnable
         m.isForkClient(true);
 
         // Continuar lendo até a mensagem indicar o fim da conexão
-        while (!m.isTerminate())
+        while (m.isTerminate())
         {
             try
             {
                 objectOutputStream.writeObject(m);
+                objectOutputStream.flush();
                 m = (Message) objectInputStream.readObject();
-
+                System.out.println(m.getMessage());
             }
             catch(IOException i)
             {
                 System.out.println(i);
-            }
-            catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
-
         // close the connection
         try
         {

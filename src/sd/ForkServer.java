@@ -60,64 +60,72 @@ public class ForkServer implements Runnable
                 try
                 {
                     m = (Message) objectInputStream.readObject();
-                    System.out.println(m.getMessage());
+                    if (m != null){
+                        System.out.println(m.getMessage());
 
-                    if (m.isForkClient() && !m.isReceiving()) {
+                        if (m.isForkClient() && !m.isReceiving()) {
 
-                        if (fork.isLeftFork() && !fork.isBeingUsed()) {
-                            m.setTerminate(true);
-                            System.out.println("Tem garfo sim man, toma um garfo esquerdo aí Xd");
-                            fork.setLeftFork(false);
-                            m.setLeftFork(true);
-                            m.setReceiving(true);
+                            if (fork.isLeftFork() && !fork.isBeingUsed()) {
+//                            m.setTerminate(true);
+                                System.out.println("Tem garfo sim man, toma um garfo esquerdo aí Xd");
+                                fork.setLeftFork(false);
+                                m.setLeftFork(true);
+                                m.setReceiving(true);
+
+                            }
+
+                            if (fork.isRightFork() && !fork.isBeingUsed()) {
+//                            m.setTerminate(true);
+                                System.out.println("Tem garfo sim man, toma um garfo direito aí Xd");
+                                fork.setRightFork(false);
+                                m.setRightFork(true);
+                                m.setReceiving(true);
+                            }
+
+                            else {
+                                System.out.println("Não tem nenhum garfo por aqui");
+                                m.setReceiving(false);
+                            }
+
 
                         }
 
-                        if (fork.isRightFork() && !fork.isBeingUsed()) {
-                            m.setTerminate(true);
-                            System.out.println("Tem garfo sim man, toma um garfo direito aí Xd");
-                            fork.setRightFork(false);
-                            m.setRightFork(true);
-                            m.setReceiving(true);
+                        else if (m.isForkClient() && m.isReceiving()) {
+
+                            if (m.isRightFork()) {
+                                fork.setRightFork(true);
+                            }
+
+                            if (m.isLeftFork()) {
+                                fork.setLeftFork(true);
+                            }
                         }
 
-                        else {
-                            System.out.println("Não tem nenhum garfo por aqui");
-                            m.setReceiving(false);
+                        else if (m.isPhilosopherClient()) {
+
+                            if(m.Ate()) {
+                                fork.setBeing_used(false);
+                            }
                         }
 
                         System.out.println("Mandando o garfo aí man, Xd");
+
                         objectOutputStream.writeObject(m);
                     }
-
-                    else if (m.isForkClient() && m.isReceiving()) {
-
-                        if (m.isRightFork()) {
-                            fork.setRightFork(true);
-                        }
-
-                        if (m.isLeftFork()) {
-                            fork.setLeftFork(true);
-                        }
-                    }
-
-                    else if (m.isPhilosopherClient()) {
-
-                        if(m.Ate()) {
-                            fork.setBeing_used(false);
-                        }
-                    }
-
 
                 }
                 catch(IOException i)
                 {
                     System.out.println(i);
+                    socket.close();
+                    server.close();
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
+                    socket.close();
+                    server.close();
                 }
 
-            } while (!m.isTerminate());
+            } while (m.isTerminate());
 
             System.out.println("Closing connection");
 
