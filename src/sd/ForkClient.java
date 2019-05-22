@@ -55,7 +55,7 @@ public class ForkClient implements  Runnable
         m.isForkClient(true);
 
         // Continuar lendo até a mensagem indicar o fim da conexão
-        while (m.isTerminate())
+        while (!m.isTerminate())
         {
             try
             {

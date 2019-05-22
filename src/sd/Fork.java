@@ -24,27 +24,27 @@ public class Fork {
         return fork_id;
     }
 
-    public boolean isLeftFork() {
+    public synchronized boolean isLeftFork() {
         return left_fork;
     }
 
-    public void setLeftFork(boolean left_fork) {
+    public synchronized void setLeftFork(boolean left_fork) {
         this.left_fork = left_fork;
     }
 
-    public boolean isRightFork() {
+    public synchronized boolean isRightFork() {
         return right_fork;
     }
 
-    public void setRightFork(boolean right_fork) {
+    public synchronized void setRightFork(boolean right_fork) {
         this.right_fork = right_fork;
     }
 
-    public boolean isBeingUsed() {
+    public synchronized boolean isBeingUsed() {
         return being_used;
     }
 
-    public void setBeing_used(boolean being_used) {
+    public synchronized void setBeing_used(boolean being_used) {
         this.being_used = being_used;
     }
 

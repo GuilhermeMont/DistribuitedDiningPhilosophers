@@ -16,7 +16,7 @@ public class ForkPeer {
 
 
         //Criar Runnable do cliente de garfos
-        Runnable fc1 = new ForkClient("192.168.1.145", 5002);
+        Runnable fc1 = new ForkClient("localhost", 5002);
 
         //Criando uma thread pool
         ExecutorService pool = Executors.newFixedThreadPool(MAX_T);
@@ -29,13 +29,13 @@ public class ForkPeer {
             pool.shutdown(); // se der merda , fecha
         }
 
-//        try {
-//            pool.execute(fc1); //Executando
-//        }
-//        catch (Exception e) {
-//            System.out.println("Falha ao criar o cliente local de Garfos");
-//            pool.shutdown(); // se der merda, fecha
-//        }
+        try {
+            pool.execute(fc1); //Executando
+        }
+        catch (Exception e) {
+            System.out.println("Falha ao criar o cliente local de Garfos");
+            pool.shutdown(); // se der merda, fecha
+        }
 
 
         // Fechar a pool
