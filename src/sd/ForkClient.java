@@ -17,6 +17,7 @@ public class ForkClient implements  Runnable
     private ObjectInputStream objectInputStream = null;
     private String address;
     private int port;
+    private  boolean terminate = false;
 
 
     Message m = new Message("Pedindo garfo");
@@ -24,6 +25,10 @@ public class ForkClient implements  Runnable
     ForkClient(String address, int port) {
         this.address = address;
         this.port = port;
+    }
+
+    private void setTermination (boolean terminate) {
+        this.terminate = terminate;
     }
 
 
@@ -47,9 +52,10 @@ public class ForkClient implements  Runnable
 
         m = (Message) objectInputStream.readObject();
         System.out.println(m.getMessage());
-
         objectOutputStream.close();
         objectInputStream.close();
+        socket.close();
+        setTermination(m.isTerminate());
 
     }
 
@@ -60,13 +66,14 @@ public class ForkClient implements  Runnable
         try
         {
 
-            while (!m.isTerminate())
+            while (!this.terminate)
             {
                 socket = new Socket(address, port);
                 System.out.println("O CLIENTE " + this.address + ':' + this.port + " esta conectado");
                 connect(socket);
 
             }
+
 
         } catch(IOException | ClassNotFoundException u)
         {

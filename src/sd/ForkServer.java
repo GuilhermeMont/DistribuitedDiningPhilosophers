@@ -25,6 +25,10 @@ public class ForkServer implements Runnable {
         this.fork = new Fork(port);
     }
 
+    private void setTermination (boolean terminate) {
+        this.terminate = terminate;
+    }
+
 
     public void consume(Socket socket) throws IOException, ClassNotFoundException {
 
@@ -90,6 +94,7 @@ public class ForkServer implements Runnable {
         objectOutputStream.flush();
         objectOutputStream.close();
         objectInputStream.close();
+        setTermination(true);
         socket.close();
 
     }
@@ -104,7 +109,7 @@ public class ForkServer implements Runnable {
             fork.setRightFork(true);
 
             // reads message from client until "Over" is sent
-            do {
+            while (!this.terminate) {
 
                 try {
                     Socket client = server.accept();
@@ -125,12 +130,9 @@ public class ForkServer implements Runnable {
                     throw new RuntimeException(
                             "Error accepting client connection", e);
                 }
-
-
-            } while (!m.isTerminate());
+            }
 
             System.out.println("Closing connection");
-
             // close connection
             server.close();
         } catch (IOException i) {
