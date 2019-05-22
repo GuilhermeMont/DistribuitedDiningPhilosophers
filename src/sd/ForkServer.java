@@ -64,7 +64,6 @@ public class ForkServer implements Runnable {
             } else {
                 System.out.println("Não tem nenhum garfo por aqui");
                 m.setReceiving(false); // não esta enviando nada
-                m.setTerminate(true);
             }
 
 
@@ -84,7 +83,6 @@ public class ForkServer implements Runnable {
             }
         }
 
-        m.setTerminate(true);
         objectOutputStream.writeObject(m);
         objectOutputStream.flush();
         objectOutputStream.close();
