@@ -48,21 +48,20 @@ public class ForkServer implements Runnable {
         if (m.isForkClient() && !m.isReceiving()) { // Se o fork client estiver pedindo um garfo
 
             if (fork.isLeftFork() && !fork.isBeingUsed()) { // olha se tem garfo esquerdo
-                System.out.println("Tem garfo esquerdo");
+                System.out.println("Passando o garfo esquerdo para o cliente " + socket.getInetAddress() + ":" + socket.getLocalPort());
                 fork.setLeftFork(false);
                 m.setLeftFork(true);
                 m.setReceiving(true); //esta enviando garfo
-
             }
 
             if (fork.isRightFork() && !fork.isBeingUsed()) { //olha se tem garfo direito
-                System.out.println("Tem garfo direito");
+                System.out.println("Passando o garfo direito para o cliente " + socket.getInetAddress() + ":" + socket.getLocalPort());
                 fork.setRightFork(false);
                 m.setRightFork(true);
                 m.setReceiving(true); // esta enviando garfo
 
             } else {
-                System.out.println("Não tem nenhum garfo por aqui");
+                System.out.println("Não tem nenhum garfo por aqui respondendo ao cliente "  + socket.getInetAddress() + ":" + socket.getLocalPort());
                 m.setReceiving(false); // não esta enviando nada
             }
 
@@ -70,10 +69,13 @@ public class ForkServer implements Runnable {
         } else if (m.isForkClient() && m.isReceiving()) {
 
             if (m.isRightFork()) {
+                System.out.println("Recebendo garfo direito do cliente "  + socket.getInetAddress() + ":" + socket.getLocalPort());
                 fork.setRightFork(true); //recebi um garfo direito
+
             }
 
             if (m.isLeftFork()) {
+                System.out.println("Recebendo garfo esquerdo do cliente "  + socket.getInetAddress() + ":" + socket.getLocalPort());
                 fork.setLeftFork(true); //recebi um garfo esquerdo
             }
         } else if (m.isPhilosopherClient()) { // se for um cliente filosofo
@@ -83,6 +85,7 @@ public class ForkServer implements Runnable {
             }
         }
 
+        m.setTerminate(true);
         objectOutputStream.writeObject(m);
         objectOutputStream.flush();
         objectOutputStream.close();

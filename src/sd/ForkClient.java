@@ -1,6 +1,6 @@
 package sd;
 
-// A Java program for a PhilosopherClient
+// A Java program for a ForkClient
 
 import java.io.*;
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class ForkClient implements  Runnable
     private int port;
 
 
-    Message m = new Message("Tem um garfin aí man ??");
+    Message m = new Message("Pedindo garfo");
 
     ForkClient(String address, int port) {
         this.address = address;
@@ -44,9 +44,9 @@ public class ForkClient implements  Runnable
 
         objectOutputStream.writeObject(m);
         objectOutputStream.flush();
+
         m = (Message) objectInputStream.readObject();
         System.out.println(m.getMessage());
-
 
         objectOutputStream.close();
         objectInputStream.close();
@@ -63,8 +63,9 @@ public class ForkClient implements  Runnable
             while (!m.isTerminate())
             {
                 socket = new Socket(address, port);
+                System.out.println("O CLIENTE " + this.address + ':' + this.port + " esta conectado");
                 connect(socket);
-                System.out.println("Connected");
+
             }
 
         } catch(IOException | ClassNotFoundException u)
