@@ -8,15 +8,17 @@ public class ForkPeer {
     static final int MAX_T = 6;
 
 
-    public static void main(String args[]){
 
+    public static void main(String args[]){
+        Fork frk1 = new Fork(1);
+        frk1.setLeftFork(true);
 
         //Criar Runnable do servidor de garfos
-        Runnable fs1 = new ForkServer(5002);
+        Runnable fs1 = new ForkServer(5002,frk1);
 
 
         //Criar Runnable do cliente de garfos
-        Runnable fc1 = new ForkClient("localhost", 5002);
+        Runnable fc1 = new ForkClient("localhost", 5003,5002);
 
         //Criando uma thread pool
         ExecutorService pool = Executors.newFixedThreadPool(MAX_T);

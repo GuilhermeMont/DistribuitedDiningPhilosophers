@@ -8,7 +8,6 @@ import java.net.Socket;
 
 public class ForkServer implements Runnable {
     //initialize socket and input stream
-    private Socket socket = null;
     private ServerSocket server = null;
     private InputStream inputStream = null;
     private ObjectInputStream objectInputStream = null;
@@ -20,12 +19,12 @@ public class ForkServer implements Runnable {
 
     Message m = new Message(null);
 
-    ForkServer(int port) {
+    ForkServer(int port,Fork fork) {
         this.port = port;
-        this.fork = new Fork(port);
+        this.fork = fork;
     }
 
-    private void setTermination (boolean terminate) {
+    private void setTermination(boolean terminate) {
         this.terminate = terminate;
     }
 
@@ -46,55 +45,60 @@ public class ForkServer implements Runnable {
 
         m = (Message) objectInputStream.readObject();
 
+        if (m.isForkClient()) {
+            if(!fork.isBeingUsed() && !m.isChecking()){
+                if (!m.isReceiving()) { // Se o fork client estiver pedindo um garfo
 
-        System.out.println(m.getMessage());
+                    if (fork.isLeftFork()) { // olha se tem garfo esquerdo
+                        System.out.println("Passando o garfo esquerdo para o cliente " + m.getMessage());
+                        fork.setLeftFork(false);
+                        m.setLeftFork(true);
+                        m.setReceiving(true); //esta enviando garfo
+                    }
 
-        if (m.isForkClient() && !m.isReceiving()) { // Se o fork client estiver pedindo um garfo
+                    if (fork.isRightFork()) { //olha se tem garfo direito
+                        System.out.println("Passando o garfo direito para o cliente " + m.getMessage());
+                        fork.setRightFork(false);
+                        m.setRightFork(true);
+                        m.setReceiving(true); // esta enviando garfo
 
-            if (fork.isLeftFork() && !fork.isBeingUsed()) { // olha se tem garfo esquerdo
-                System.out.println("Passando o garfo esquerdo para o cliente " + socket.getInetAddress() + ":" + socket.getLocalPort());
-                fork.setLeftFork(false);
-                m.setLeftFork(true);
-                m.setReceiving(true); //esta enviando garfo
+                    } else {
+                        System.out.println("Não tem nenhum garfo por aqui " + this.port + " respondendo ao cliente" + m.getMessage());
+                        m.setReceiving(false); // não esta enviando nada
+                    }
+
+
+                } else if (m.isReceiving()) {
+
+                    System.out.println( m.getMessage() + " esta pedindo garfo para " + this.port);
+
+                    if (m.isRightFork()) {
+                        System.out.println("Recebendo garfo direito do cliente " + m.getMessage());
+                        fork.setRightFork(true); //recebi um garfo direito
+                        m.setReceiving(false);
+
+                    }
+
+                    if (m.isLeftFork()) {
+                        System.out.println("Recebendo garfo esquerdo do cliente " + m.getMessage());
+                        fork.setLeftFork(true); //recebi um garfo esquerdo
+                        m.setReceiving(false);
+                    }
+
+                }
             }
-
-            if (fork.isRightFork() && !fork.isBeingUsed()) { //olha se tem garfo direito
-                System.out.println("Passando o garfo direito para o cliente " + socket.getInetAddress() + ":" + socket.getLocalPort());
-                fork.setRightFork(false);
-                m.setRightFork(true);
-                m.setReceiving(true); // esta enviando garfo
-
-            } else {
-                System.out.println("Não tem nenhum garfo por aqui respondendo ao cliente "  + socket.getInetAddress() + ":" + socket.getLocalPort());
-                m.setReceiving(false); // não esta enviando nada
-            }
-
-
-        } else if (m.isForkClient() && m.isReceiving()) {
-
-            if (m.isRightFork()) {
-                System.out.println("Recebendo garfo direito do cliente "  + socket.getInetAddress() + ":" + socket.getLocalPort());
-                fork.setRightFork(true); //recebi um garfo direito
-
-            }
-
-            if (m.isLeftFork()) {
-                System.out.println("Recebendo garfo esquerdo do cliente "  + socket.getInetAddress() + ":" + socket.getLocalPort());
-                fork.setLeftFork(true); //recebi um garfo esquerdo
-            }
-        } else if (m.isPhilosopherClient()) { // se for um cliente filosofo
-
-            if (m.Ate()) {
-                fork.setBeing_used(false);
+            else if (m.isChecking()) {
+                System.out.println("O cliente " + this.port + " está verificando se possui garfo");
+                m.setRightFork(fork.isRightFork());
+                m.setLeftFork(fork.isLeftFork());
+                fork.setBeing_used(m.isEating());
             }
         }
 
-        m.setTerminate(true);
         objectOutputStream.writeObject(m);
         objectOutputStream.flush();
         objectOutputStream.close();
         objectInputStream.close();
-        setTermination(true);
         socket.close();
 
     }
@@ -105,16 +109,14 @@ public class ForkServer implements Runnable {
         // starts server and waits for a connection
         try {
             server = new ServerSocket(port);
-            fork.setLeftFork(true);
-            fork.setRightFork(true);
-
+            System.out.println("Servidor de Garfo : " + this.port + " esta ativo");
             // reads message from client until "Over" is sent
             while (!this.terminate) {
 
                 try {
                     Socket client = server.accept();
 
-                    new Thread(() ->{								// Thread que recebe informa��es do cliente
+                    new Thread(() -> {                                // Thread que recebe informa��es do cliente
                         try {
                             consume(client);
                         } catch (IOException | ClassNotFoundException e) {

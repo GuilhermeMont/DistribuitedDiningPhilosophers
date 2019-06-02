@@ -6,8 +6,9 @@ public class Message implements Serializable{
     private static final long serialVersionUID = -5399605122490343339L;
 
     private String message = null;
-    private boolean ate = false;
+    private boolean eating = false;
     private boolean terminate = false;
+    private boolean checking = false;
     private boolean isForkClient;
     private boolean isPhilosopherClient;
     private boolean receiving;
@@ -16,6 +17,25 @@ public class Message implements Serializable{
 
 
 
+    public void checkInfo (int port) {
+        System.out.println("O clinte da porta: " + port);
+        System.out.println("---------------------------");
+        System.out.println("Possui garfo direito ? " + this.rightFork);
+        System.out.println("Possui garfo esquerdo ? " + this.leftFork);
+        System.out.println("Esta comendo ? " + this.eating);
+        System.out.println("Esta pedindo um garfo ? " + !this.receiving);
+        System.out.println("Esta recebendo um garfo ? " + this.receiving);
+        System.out.println("---------------------------");
+    }
+
+    public boolean isChecking() {
+        return checking;
+    }
+
+    public void setChecking(boolean checking) {
+        this.checking = checking;
+    }
+
     Message (String message) {
         this.message = message;
     }
@@ -23,6 +43,8 @@ public class Message implements Serializable{
     public boolean isRightFork() {
         return rightFork;
     }
+
+
 
     public void setRightFork(boolean rightFork) {
         this.rightFork = rightFork;
@@ -48,12 +70,12 @@ public class Message implements Serializable{
         return message;
     }
 
-    public void Ate (boolean ate) {
-        this.ate = ate;
+    public void setEating (boolean eating) {
+        this.eating = eating;
     }
 
-    public boolean Ate () {
-        return ate;
+    public boolean isEating () {
+        return eating;
     }
 
     public void writeMessage (String message) {

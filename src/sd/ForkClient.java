@@ -5,6 +5,7 @@ package sd;
 import java.io.*;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.*;
 import java.net.UnknownHostException;
 
 public class ForkClient implements  Runnable
@@ -17,14 +18,18 @@ public class ForkClient implements  Runnable
     private ObjectInputStream objectInputStream = null;
     private String address;
     private int port;
+    private int innerPort;
+    private int philosopherPort;
     private  boolean terminate = false;
 
 
-    Message m = new Message("Pedindo garfo");
+    Message m = new Message(null);
 
-    ForkClient(String address, int port) {
+
+    ForkClient(String address, int port,int innerPort) {
         this.address = address;
         this.port = port;
+        this.innerPort = innerPort;
     }
 
     private void setTermination (boolean terminate) {
@@ -32,7 +37,10 @@ public class ForkClient implements  Runnable
     }
 
 
-    public void connect (Socket socket) throws IOException, ClassNotFoundException {
+    private void connect (String address, int port) throws IOException, ClassNotFoundException {
+
+        Socket socket = new Socket(address,port);
+
         // get the output stream from the socket.
         outputStream = socket.getOutputStream();
 
@@ -51,12 +59,52 @@ public class ForkClient implements  Runnable
         objectOutputStream.flush();
 
         m = (Message) objectInputStream.readObject();
-        System.out.println(m.getMessage());
         objectOutputStream.close();
         objectInputStream.close();
         socket.close();
-        setTermination(m.isTerminate());
+    }
 
+
+
+    private static int generateRandom(){
+        int i = (new Random().nextInt(3)+1);
+        switch (i){
+            case 1:
+                return (new Random().nextInt(5)+1)*1000;
+            case 2:
+                return (new Random().nextInt(5)+1)*100;
+            case 3:
+                return (new Random().nextInt(5)+1)*500;
+            default:
+                break;
+        }
+        return 0;
+    }
+
+
+
+    private void consumeSomething () {
+        try {
+            int time = generateRandom();
+            Thread.sleep(time);
+        }catch (InterruptedException e){
+            System.err.println(e);
+        }
+    }
+
+
+    private void checkFork () {
+        if (m.isLeftFork() && m.isRightFork()) {
+            m.setEating(true);
+            System.out.println("O Cliente " + this.address +" : "+ this.innerPort + " esta comendo");
+            consumeSomething();
+            m.setReceiving(true);
+            m.setEating(false);
+        }
+        else {
+            m.setReceiving(false);
+            m.setEating(false);
+        }
     }
 
 
@@ -66,16 +114,32 @@ public class ForkClient implements  Runnable
         try
         {
 
+            System.out.println("O CLIENTE " + this.address + ':' + this.port + " esta conectado");
+            m.writeMessage(this.address + " : " +this.innerPort);
+            Thread.sleep(1000);
+
             while (!this.terminate)
             {
-                socket = new Socket(address, port);
-                System.out.println("O CLIENTE " + this.address + ':' + this.port + " esta conectado");
-                connect(socket);
+
+                m.setChecking(true);
+                connect(address, innerPort);
+//                m.checkInfo(this.innerPort);
+
+                checkFork();
+
+                consumeSomething();
+
+                m.setChecking(false);
+                connect(address,port);
+//                m.checkInfo(this.innerPort);
+
+                checkFork();
+
 
             }
 
 
-        } catch(IOException | ClassNotFoundException u)
+        } catch(IOException | ClassNotFoundException | InterruptedException u)
         {
             System.out.println(u);
         }
