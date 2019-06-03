@@ -16,6 +16,11 @@ public class ForkServer implements Runnable {
     private boolean terminate = false;
     private int port;
     private Fork fork = null;
+    private int numberOfRequests = 0;
+    private boolean isFinishingConnection = false;
+
+
+    private static final int MaxRequests = 50;
 
     Message m = new Message(null);
 
@@ -26,6 +31,10 @@ public class ForkServer implements Runnable {
 
     private void setTermination(boolean terminate) {
         this.terminate = terminate;
+    }
+
+    private void increaseRequest () {
+        this.numberOfRequests++;
     }
 
 
@@ -44,6 +53,14 @@ public class ForkServer implements Runnable {
         objectOutputStream = new ObjectOutputStream(outputStream);
 
         m = (Message) objectInputStream.readObject();
+
+        if (m.isTerminate()){
+            objectOutputStream.close();
+            objectInputStream.close();
+            socket.close();
+            setTermination(m.isTerminate());
+            return;
+        }
 
         if (m.isForkClient()) {
             if(!fork.isBeingUsed() && !m.isChecking()){
@@ -95,6 +112,11 @@ public class ForkServer implements Runnable {
             }
         }
 
+
+        if (this.isFinishingConnection) {
+            m.setTerminate(true);
+        }
+
         objectOutputStream.writeObject(m);
         objectOutputStream.flush();
         objectOutputStream.close();
@@ -115,7 +137,7 @@ public class ForkServer implements Runnable {
 
                 try {
                     Socket client = server.accept();
-
+                    increaseRequest();
                     new Thread(() -> {                                // Thread que recebe informa��es do cliente
                         try {
                             consume(client);
@@ -123,6 +145,10 @@ public class ForkServer implements Runnable {
                             e.printStackTrace();
                         }
                     }).start();
+
+                    if(this.numberOfRequests == MaxRequests) {
+                        this.isFinishingConnection = true;
+                    }
 
                 } catch (IOException e) {
                     if (this.terminate) {

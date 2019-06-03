@@ -11,7 +11,6 @@ import java.net.UnknownHostException;
 public class ForkClient implements  Runnable
 {
     // initialize socket and input output streams
-    private Socket socket		 = null;
     private OutputStream outputStream  = null;
     private ObjectOutputStream objectOutputStream 	 = null;
     private InputStream inputStream	 = null;
@@ -19,8 +18,8 @@ public class ForkClient implements  Runnable
     private String address;
     private int port;
     private int innerPort;
-    private int philosopherPort;
-    private  boolean terminate = false;
+    private boolean terminate = false;
+    private int ate = 0;
 
 
     Message m = new Message(null);
@@ -30,6 +29,11 @@ public class ForkClient implements  Runnable
         this.address = address;
         this.port = port;
         this.innerPort = innerPort;
+    }
+
+
+    private void increaseTimesEaten () {
+        this.ate++;
     }
 
     private void setTermination (boolean terminate) {
@@ -65,7 +69,6 @@ public class ForkClient implements  Runnable
     }
 
 
-
     private static int generateRandom(){
         int i = (new Random().nextInt(3)+1);
         switch (i){
@@ -80,8 +83,6 @@ public class ForkClient implements  Runnable
         }
         return 0;
     }
-
-
 
     private void consumeSomething () {
         try {
@@ -98,6 +99,7 @@ public class ForkClient implements  Runnable
             m.setEating(true);
             System.out.println("O Cliente " + this.address +" : "+ this.innerPort + " esta comendo");
             consumeSomething();
+            increaseTimesEaten();
             m.setReceiving(true);
             m.setEating(false);
         }
@@ -107,6 +109,27 @@ public class ForkClient implements  Runnable
         }
     }
 
+
+    private void finishServerConnection (String address, int port) throws IOException {
+
+        Socket socket = new Socket(address,port);
+        outputStream = socket.getOutputStream();
+        objectOutputStream = new ObjectOutputStream(outputStream);
+
+        m.isForkClient(true);
+        m.setTerminate(true);
+
+        objectOutputStream.writeObject(m);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+
+        socket.close();
+
+    }
+
+    private void timesEaten () {
+        System.out.println(this.address + " : " + this.innerPort + "  comeu " + this.ate);
+    }
 
     public void run ()
     {
@@ -134,10 +157,13 @@ public class ForkClient implements  Runnable
 //                m.checkInfo(this.innerPort);
 
                 checkFork();
-
+                setTermination(m.isTerminate());
 
             }
 
+            finishServerConnection(address,innerPort);
+            finishServerConnection(address,port);
+            timesEaten();
 
         } catch(IOException | ClassNotFoundException | InterruptedException u)
         {
