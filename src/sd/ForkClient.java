@@ -110,6 +110,21 @@ public class ForkClient implements  Runnable
     }
 
 
+    private void finishAll () {
+
+        try {
+            finishServerConnection(address,5001);
+            finishServerConnection(address,5002);
+            finishServerConnection(address,5003);
+            finishServerConnection(address,5004);
+            finishServerConnection(address,5005);
+        }catch (IOException e){
+            System.out.println(e);
+        }
+
+    }
+
+
     private void finishServerConnection (String address, int port) throws IOException {
 
         Socket socket = new Socket(address,port);
@@ -146,7 +161,7 @@ public class ForkClient implements  Runnable
 
                 m.setChecking(true);
                 connect(address, innerPort);
-//                m.checkInfo(this.innerPort);
+                m.checkInfo(this.innerPort);
 
                 checkFork();
 
@@ -154,20 +169,20 @@ public class ForkClient implements  Runnable
 
                 m.setChecking(false);
                 connect(address,port);
-//                m.checkInfo(this.innerPort);
+                m.checkInfo(this.innerPort);
 
                 checkFork();
                 setTermination(m.isTerminate());
 
             }
 
-            finishServerConnection(address,innerPort);
-            finishServerConnection(address,port);
+            finishAll();
             timesEaten();
 
         } catch(IOException | ClassNotFoundException | InterruptedException u)
         {
             System.out.println(u);
+            timesEaten();
         }
 
     }
