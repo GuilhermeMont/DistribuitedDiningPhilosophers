@@ -1,14 +1,56 @@
 package sd;
 
+import java.io.*;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class LocalPhilosophersDinner {
 
-    static final int MAX_T = 10;
+    private static final int MAX_T = 10;
+    private static OutputStream outputStream  = null;
+    private static ObjectOutputStream objectOutputStream = null;
+
+    // Quando tiver rodando em distribuido, colocar corretamente os addresses
+    private static final String[] addresses = {
+            "localhost:5001",
+            "localhost:5002",
+            "localhost:5003",
+            "localhost:5004",
+            "localhost:5005",
+    };
 
 
-    public static void main(String args[]){
+    private static void sendBeginMessage(String address, int port) throws IOException {
+        Message m = new Message(null);
+        Socket socket = new Socket(address,port);
+        outputStream = socket.getOutputStream();
+        objectOutputStream = new ObjectOutputStream(outputStream);
+        objectOutputStream.writeObject(m);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+        socket.close();
+
+    }
+
+    private static void startAllDistributed () {
+        // IMPORTANTE
+        // TODOS OS PEERS PRECISAM ESTAR ON !
+
+        // este metodo ira ler do array addresses e enviar uma mensagem de begin para todas
+        for (String address : addresses) {
+            try{
+                sendBeginMessage(address.split(":")[0],Integer.parseInt(address.split(":")[1]));
+            }
+            catch(IOException e){
+                System.out.println(e);
+            }
+
+        }
+
+    }
+
+    private static void startAllLocal () {
 
         Fork fork1 = new Fork (5001);
         Fork fork2 = new Fork (5002);
@@ -16,11 +58,11 @@ public class LocalPhilosophersDinner {
         Fork fork4 = new Fork (5004);
         Fork fork5 = new Fork (5005);
 
-        fork1.setLeftFork(true);
         fork1.setRightFork(true);
-        fork2.setLeftFork(true);
-        fork4.setLeftFork(true);
+        fork1.setLeftFork(true);
         fork4.setRightFork(true);
+        fork4.setLeftFork(true);
+        fork3.setLeftFork(true);
 
 
         //Criar Runnable do servidor de garfos
@@ -67,6 +109,18 @@ public class LocalPhilosophersDinner {
 
         // Fechar a pool
         pool.shutdown();
+
+    }
+
+
+    public static void main(String args[]){
+
+        //Run distributed
+        startAllDistributed();
+
+
+        //Run local
+//        startAllLocal();
 
     }
 

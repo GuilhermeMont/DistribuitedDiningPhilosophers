@@ -158,22 +158,17 @@ public class ForkClient implements  Runnable
 
             while (!this.terminate)
             {
-
                 m.setChecking(true);
                 connect(address, innerPort);
                 m.checkInfo(this.innerPort);
-
                 checkFork();
-
-                consumeSomething();
-
+                consumeSomething (); // Colocar para pensar novamente
                 m.setChecking(false);
                 connect(address,port);
                 m.checkInfo(this.innerPort);
-
                 checkFork();
-                setTermination(m.isTerminate());
-
+                setTermination(m.isTerminate());// Se um mensagem de terminar chegar sair do loop e mandar
+                                                // mensagem de fim para todos os servidores
             }
 
             finishAll();

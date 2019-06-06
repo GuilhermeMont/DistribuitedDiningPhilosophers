@@ -20,7 +20,7 @@ public class ForkServer implements Runnable {
     private boolean isFinishingConnection = false;
 
 
-    private static final int MaxRequests = 50;
+    private static final int MaxRequests = 100;
 
     Message m = new Message(null);
 
@@ -133,6 +133,7 @@ public class ForkServer implements Runnable {
             server = new ServerSocket(port);
             System.out.println("Servidor de Garfo : " + this.port + " esta ativo");
             // reads message from client until "Over" is sent
+
             while (!this.terminate) {
 
                 try {

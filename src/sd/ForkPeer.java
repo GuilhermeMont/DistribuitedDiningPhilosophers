@@ -1,4 +1,7 @@
 package sd;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -6,10 +9,28 @@ public class ForkPeer {
 
 
     static final int MAX_T = 6;
+    static final int port = 5001;
+
 
 
 
     public static void main(String args[]){
+
+        try {
+            boolean begin = false;
+            ServerSocket server = new ServerSocket(5001);
+
+            while(!begin){
+                Socket start = server.accept();
+                start.close();
+                begin = true;
+            }
+
+        }catch (IOException e){
+            System.out.println(e);
+        }
+
+
         Fork frk1 = new Fork(1);
         frk1.setLeftFork(true);
 
@@ -38,7 +59,6 @@ public class ForkPeer {
             System.out.println("Falha ao criar o cliente local de Garfos");
             pool.shutdown(); // se der merda, fecha
         }
-
 
         // Fechar a pool
         pool.shutdown();
