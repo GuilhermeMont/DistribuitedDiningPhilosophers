@@ -9,7 +9,7 @@ public class ForkPeer {
 
 
     static final int MAX_T = 6;
-    static final int port = 5001;
+    static final int port = 5000;
 
 
 
@@ -18,7 +18,7 @@ public class ForkPeer {
 
         try {
             boolean begin = false;
-            ServerSocket server = new ServerSocket(5001);
+            ServerSocket server = new ServerSocket(5000);
 
             while(!begin){
                 Socket start = server.accept();
@@ -32,14 +32,14 @@ public class ForkPeer {
 
 
         Fork frk1 = new Fork(1);
-        frk1.setLeftFork(true);
+//        frk1.setLeftFork(true);
 
         //Criar Runnable do servidor de garfos
-        Runnable fs1 = new ForkServer(5002,frk1);
+        Runnable fs1 = new ForkServer(5005,frk1);
 
 
         //Criar Runnable do cliente de garfos
-        Runnable fc1 = new ForkClient("localhost", 5003,5002);
+        Runnable fc1 = new ForkClient("200.239.138.211", 5001,5005);
 
         //Criando uma thread pool
         ExecutorService pool = Executors.newFixedThreadPool(MAX_T);

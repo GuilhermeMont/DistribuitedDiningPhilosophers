@@ -113,11 +113,11 @@ public class ForkClient implements  Runnable
     private void finishAll () {
 
         try {
-            finishServerConnection(address,5001);
-            finishServerConnection(address,5002);
-            finishServerConnection(address,5003);
-            finishServerConnection(address,5004);
-            finishServerConnection(address,5005);
+            finishServerConnection("200.239.138.211",5001);
+            finishServerConnection("200.239.139.25",5002);
+            finishServerConnection("200.239.139.27",5003);
+            finishServerConnection("200.239.139.28",5004);
+            finishServerConnection("200.239.139.120",5005);
         }catch (IOException e){
             System.out.println(e);
         }
@@ -146,6 +146,23 @@ public class ForkClient implements  Runnable
         System.out.println(this.address + " : " + this.innerPort + "  comeu " + this.ate);
     }
 
+    private void consuming () throws IOException, ClassNotFoundException {
+        while (!this.terminate)
+        {
+            m.setChecking(true);
+            connect("localhost", innerPort);
+            m.checkInfo(this.innerPort);
+            checkFork();
+            consumeSomething (); // Colocar para pensar novamente
+            m.setChecking(false);
+            connect(address,port);
+            m.checkInfo(this.innerPort);
+            checkFork();
+            setTermination(m.isTerminate());// Se um mensagem de terminar chegar sair do loop e mandar
+            // mensagem de fim para todos os servidores
+        }
+    }
+
     public void run ()
     {
         // establish a connection
@@ -156,28 +173,20 @@ public class ForkClient implements  Runnable
             m.writeMessage(this.address + " : " +this.innerPort);
             Thread.sleep(1000);
 
-            while (!this.terminate)
-            {
-                m.setChecking(true);
-                connect(address, innerPort);
-                m.checkInfo(this.innerPort);
-                checkFork();
-                consumeSomething (); // Colocar para pensar novamente
-                m.setChecking(false);
-                connect(address,port);
-                m.checkInfo(this.innerPort);
-                checkFork();
-                setTermination(m.isTerminate());// Se um mensagem de terminar chegar sair do loop e mandar
-                                                // mensagem de fim para todos os servidores
-            }
+            consuming();
 
             finishAll();
             timesEaten();
 
         } catch(IOException | ClassNotFoundException | InterruptedException u)
         {
-            System.out.println(u);
-            timesEaten();
+            try {
+                consuming();
+            } catch (IOException | ClassNotFoundException e) {
+                finishAll();
+                timesEaten();
+                e.printStackTrace();
+            }
         }
 
     }

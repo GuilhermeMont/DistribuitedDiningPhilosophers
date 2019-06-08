@@ -13,11 +13,11 @@ public class LocalPhilosophersDinner {
 
     // Quando tiver rodando em distribuido, colocar corretamente os addresses
     private static final String[] addresses = {
-            "localhost:5001",
-            "localhost:5002",
-            "localhost:5003",
-            "localhost:5004",
-            "localhost:5005",
+            "200.239.139.120:5000",
+            "200.239.138.211:5000",
+            "200.239.139.25:5000",
+            "200.239.139.27:5000",
+            "200.239.139.28:5000",
     };
 
 
