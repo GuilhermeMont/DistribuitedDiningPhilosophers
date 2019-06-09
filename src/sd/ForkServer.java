@@ -38,7 +38,7 @@ public class ForkServer implements Runnable {
     }
 
 
-    public void consume(Socket socket) throws IOException, ClassNotFoundException {
+    public synchronized void consume(Socket socket) throws IOException, ClassNotFoundException {
 
         // get the input stream from the connected socket
         inputStream = socket.getInputStream();

@@ -35,11 +35,11 @@ public class ForkPeer {
 //        frk1.setLeftFork(true);
 
         //Criar Runnable do servidor de garfos
-        Runnable fs1 = new ForkServer(5005,frk1);
+        Runnable fs1 = new ForkServer(6121,frk1);
 
 
         //Criar Runnable do cliente de garfos
-        Runnable fc1 = new ForkClient("200.239.138.211", 5001,5005);
+        Runnable fc1 = new ForkClient("200.239.139.123", 6121,6121);
 
         //Criando uma thread pool
         ExecutorService pool = Executors.newFixedThreadPool(MAX_T);

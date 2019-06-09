@@ -174,8 +174,6 @@ public class ForkClient implements  Runnable
             Thread.sleep(1000);
 
             consuming();
-
-            finishAll();
             timesEaten();
 
         } catch(IOException | ClassNotFoundException | InterruptedException u)
@@ -183,7 +181,7 @@ public class ForkClient implements  Runnable
             try {
                 consuming();
             } catch (IOException | ClassNotFoundException e) {
-                finishAll();
+//                finishAll();
                 timesEaten();
                 e.printStackTrace();
             }
